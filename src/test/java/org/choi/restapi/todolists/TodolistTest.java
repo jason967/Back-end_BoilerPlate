@@ -18,7 +18,7 @@ public class TodolistTest {
         assertThat(todolist).isNotNull();
     }
 
-    //지라연동테스트 다시 제발 좀 되라
+    //지라연동테스트 다시 제발 좀 되라 아니 왜 안되는거여
     @Test
     public void javaBean()
     {
