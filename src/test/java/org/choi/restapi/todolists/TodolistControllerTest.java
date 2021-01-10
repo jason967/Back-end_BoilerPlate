@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,7 +61,10 @@ public class TodolistControllerTest {
                 //TODO jsonPath의 용도 파악하기
                 //"id"의 값이 존재하는 지 테스팅
                 .andExpect(jsonPath("id").exists())
+                //header에 Location이 존재하는지
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                //header에 "Content-Type"가 제대로 된 값으로 존재하는 지
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE,MediaTypes.HAL_JSON_VALUE))
                 .andDo(print());
     }
-
 }
