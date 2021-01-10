@@ -18,6 +18,7 @@ public class TodolistTest {
         assertThat(todolist).isNotNull();
     }
 
+    //지라연동테스트
     @Test
     public void javaBean()
     {
