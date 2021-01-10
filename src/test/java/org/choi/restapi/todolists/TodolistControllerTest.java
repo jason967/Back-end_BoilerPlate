@@ -3,8 +3,10 @@ package org.choi.restapi.todolists;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -24,8 +26,11 @@ public class TodolistControllerTest {
     private MockMvc mockMvc;
 
     //TODO  ObjectMapper objectMapper의 역할 정확하게 파악하하기
-   @Autowired
+    @Autowired
     ObjectMapper objectMapper;
+
+   @MockBean
+   TodolistRepository todolistRepository;
 
     //1. 테스팅을 하면 당연히 실패한다.
     @Test
@@ -36,7 +41,12 @@ public class TodolistControllerTest {
                 .content("content is here")
                 .startDate(LocalDateTime.of(2021,01,11,12,00,00))
                 .endDate(LocalDateTime.of(2021,01,12,12,00))
+                .todoPriority(TodoPriority.MIDDLE)
                 .build();
+
+        //TODO Mockito가 뭔지 알아보자
+        todolist.setId(10L);
+        Mockito.when(todolistRepository.save(todolist)).thenReturn(todolist);
 
         mockMvc.perform(post("/api/todolist/")
                 //요청본문에 JSON을 담아서 보낸다.
