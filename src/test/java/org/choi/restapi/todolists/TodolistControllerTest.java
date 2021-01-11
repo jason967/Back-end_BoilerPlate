@@ -1,11 +1,14 @@
 package org.choi.restapi.todolists;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
@@ -15,13 +18,14 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest
+//@WebMvcTest
+@SpringBootTest
+@AutoConfigureMockMvc
 public class TodolistControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -30,24 +34,27 @@ public class TodolistControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-   @MockBean
-   TodolistRepository todolistRepository;
+//   @MockBean
+//   TodolistRepository todolistRepository;
 
     //1. 테스팅을 하면 당연히 실패한다.
     @Test
     public void createTodolist() throws Exception {
 
         Todolist todolist = Todolist.builder()
+                //원래는 입력된 값이 들어오면 안된다.
+                .id(100L)
                 .name("choi")
                 .content("content is here")
                 .startDate(LocalDateTime.of(2021,01,11,12,00,00))
                 .endDate(LocalDateTime.of(2021,01,12,12,00))
-                .todoPriority(TodoPriority.MIDDLE)
+                //.todoPriority(TodoPriority.MIDDLE)
                 .build();
 
         //TODO Mockito가 뭔지 알아보자
-        todolist.setId(10L);
-        Mockito.when(todolistRepository.save(todolist)).thenReturn(todolist);
+        //todolist.setId(10L);
+        //save 메서드가 todolist객체를 받을 때 todolist를 return 하도록 했음
+        //Mockito.when(todolistRepository.save(todolist)).thenReturn(todolist);
 
         mockMvc.perform(post("/api/todolist/")
                 //요청본문에 JSON을 담아서 보낸다.
@@ -65,6 +72,9 @@ public class TodolistControllerTest {
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 //header에 "Content-Type"가 제대로 된 값으로 존재하는 지
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE,MediaTypes.HAL_JSON_VALUE))
+                //TODO Matchers.not() 이거 뭔지 알아보기
+                .andExpect(jsonPath("id").value(Matchers.not(100L)))
+                //.andExpect(jsonPath("todoPriority").value(TodoPriority.MIDDLE))
                 .andDo(print());
     }
 }
