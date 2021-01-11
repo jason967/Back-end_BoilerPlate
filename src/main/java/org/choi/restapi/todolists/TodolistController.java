@@ -2,10 +2,11 @@ package org.choi.restapi.todolists;
 
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.Errors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import javax.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -33,7 +34,7 @@ public class TodolistController {
     //modelmapper는 공용빈으로 등록해서 사용한다.
 
     @PostMapping
-    public ResponseEntity createTodolist(@RequestBody TodolistDTO todolistDTO)
+    public ResponseEntity createTodolist(@RequestBody @Valid TodolistDTO todolistDTO, Errors errors)
     {
         //원래는 이런식으로 저장해줘야 함 -> modelMapper를 사용하면 생략가능
 //        Todolist todolist = Todolist.builder()
@@ -43,6 +44,11 @@ public class TodolistController {
 //                .endDate(todolistDTO.getEndDate())
 //                .todoPriority(todolistDTO.getTodoPriority())
 //                .build();
+
+        if(errors.hasErrors())
+        {
+            return ResponseEntity.badRequest().build();
+        }
 
         //TodolistDTO->Todolist로 만들어 달라
         Todolist todolist = modelMapper.map(todolistDTO,Todolist.class);

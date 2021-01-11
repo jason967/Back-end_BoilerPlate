@@ -41,14 +41,11 @@ public class TodolistControllerTest {
     @Test
     public void createTodolist() throws Exception {
 
-        Todolist todolist = Todolist.builder()
-                //원래는 입력된 값이 들어오면 안된다.
-                .id(100L)
+        TodolistDTO todolist = TodolistDTO.builder()
                 .name("choi")
                 .content("content is here")
                 .startDate(LocalDateTime.of(2021,01,11,12,00,00))
                 .endDate(LocalDateTime.of(2021,01,12,12,00))
-                //.todoPriority(TodoPriority.MIDDLE)
                 .build();
 
         //TODO Mockito가 뭔지 알아보자
@@ -74,7 +71,38 @@ public class TodolistControllerTest {
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE,MediaTypes.HAL_JSON_VALUE))
                 //TODO Matchers.not() 이거 뭔지 알아보기
                 .andExpect(jsonPath("id").value(Matchers.not(100L)))
-                //.andExpect(jsonPath("todoPriority").value(TodoPriority.MIDDLE))
+                .andExpect(jsonPath("todoPriority").value(TodoPriority.MIDDLE.toString()))
                 .andDo(print());
     }
+
+    @Test
+    public void createTodolist_Bad_Request() throws Exception {
+
+        Todolist todolist = Todolist.builder()
+                //원래는 입력된 값이 들어오면 안된다.
+                .id(100L)
+                .name("choi")
+                .content("content is here")
+                .startDate(LocalDateTime.of(2021,01,11,12,00,00))
+                .endDate(LocalDateTime.of(2021,01,12,12,00))
+                .build();
+
+        mockMvc.perform(post("/api/todolist/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(todolist)))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    public void createTodolist_Bad_Request_Empty_Input() throws Exception {
+        TodolistDTO todolistDTO = TodolistDTO.builder().build();
+
+        mockMvc.perform(post("/api/todolist")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(todolistDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
 }
